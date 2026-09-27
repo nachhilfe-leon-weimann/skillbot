@@ -32,7 +32,8 @@
   `test_retried_pop_near_capacity_replays_without_capacity_error`).
 - **A different tutor conflicts.** Only `student_activate` names its tutor. A live reservation of the student under
   another tutor is 409 "Subject already has an operation prepared under a different tutor"
-  (`_replayed_or_conflict`), never a replay (`test_student_activation_prepare_conflicts_on_different_tutor`).
+  (`_replayed_or_conflict`), never a replay (`test_student_activation_prepare_conflicts_on_different_tutor`). Whether
+  a student may have several tutors is [open][decide].
 
 ## Expired and cancelled
 
@@ -64,7 +65,8 @@ book twice. Commit [`072c3b7`][c-072c3b7] (SkillForge [#48][i48]) closes it:
   back only the insert. Then a live winner is replayed - or is the different-tutor 409; otherwise the collider is
   expired: reclaim it and insert again. After `_CREATE_MAX_ATTEMPTS` (3) the live winner is replayed, or 409 "Could
   not reserve an operation slot".
-- **The lock before the lookup.** Activation and pop lock the tutor workspace before the lookup. Stash locks the
+- **The lock before the lookup.** Student activation, pop and tutor teardown lock the tutor workspace before the
+  lookup; tutor activation and student deactivation take no lock - the index alone dedupes them. Stash locks the
   student workspace `FOR UPDATE` before it, because its other lock - the archive categories - comes only inside
   `_reserve_archive_slot`; without it a parallel retry counted the winner's reservation and answered "archive
   full". Two activations of one student under different tutors lock different rows; only the index catches them.
@@ -99,3 +101,4 @@ From the [lifecycle guardian][s-guardian] ([`reaper.py`][reaper], [`app/workers/
 [s-guardian]: https://github.com/Nachhilfe-Leon-Weimann/skillforge/blob/v0.5.0/docs/specs/lifecycle-guardian.md
 [c-072c3b7]: https://github.com/Nachhilfe-Leon-Weimann/skillforge/commit/072c3b780ba4fdf934d24f962d6727cd66491cd2
 [i48]: https://github.com/Nachhilfe-Leon-Weimann/skillforge/issues/48
+[decide]: ../decisions/README.md#to-decide

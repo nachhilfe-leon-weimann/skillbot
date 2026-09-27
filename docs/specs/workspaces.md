@@ -36,7 +36,8 @@ Each one is a reservation first ([Reservations](reservations.md)), then a commit
   failed commit.
 - A student has one workspace per guild: an activation under another tutor is refused while the first is reserved
   ([Reservations](reservations.md#the-natural-key)), and every activation once it is committed - 409 "Student
-  workspace already exists".
+  workspace already exists". Whether a student may have several tutors is [open](../decisions/README.md#to-decide);
+  this is what `v0.5.0` enforced.
 
 ## Tutor capacity
 

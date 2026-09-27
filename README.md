@@ -3,6 +3,8 @@
 The Discord bot of the skill-platform: tutoring management on Discord, backed by the
 [skillforge](https://github.com/Nachhilfe-Leon-Weimann/skillforge) API.
 
+The Discord rules it keeps and its contracts with SkillForge are in [`docs/`](docs/README.md).
+
 ## Development
 
 Needs `uv`, `just` and a `.env` (see [`.env.example`](.env.example)).

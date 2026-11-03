@@ -7,8 +7,8 @@ from typing import Never
 import httpx
 from pydantic import SecretStr
 from skillforge_client import Client
-from skillforge_client.api.auth import create_token_api_v1_auth_token_post
-from skillforge_client.models import AccessTokenResponse, BodyCreateTokenApiV1AuthTokenPost
+from skillforge_client.api.auth import auth_create_token
+from skillforge_client.models import AccessTokenResponse, BodyAuthCreateToken
 
 from .errors import SkillForgeClientAuthenticationError, SkillForgeResponseError, SkillForgeUnavailable
 
@@ -75,9 +75,9 @@ class ClientCredentialsAuth(httpx.Auth):
         return self._access_token is not None and monotonic() < self._access_token_valid_until
 
     async def _refresh_access_token(self) -> None:
-        response = await create_token_api_v1_auth_token_post.asyncio_detailed(
+        response = await auth_create_token.asyncio_detailed(
             client=self._client,
-            body=BodyCreateTokenApiV1AuthTokenPost(
+            body=BodyAuthCreateToken(
                 grant_type="client_credentials",
                 client_id=self._client_id,
                 client_secret=self._client_secret.get_secret_value(),

@@ -1,25 +1,12 @@
-from http import HTTPStatus
-from uuid import UUID
-
 import httpx
 from skillforge_client import AuthenticatedClient, Client
-from skillforge_client.api.bot import (
-    link_discord_account_endpoint_api_v1_bot_users_discord_id_account_put,
-    upsert_discord_user_endpoint_api_v1_bot_users_discord_id_put,
-)
-from skillforge_client.api.system import liveness_check_health_live_get
-from skillforge_client.models import (
-    DiscordAccountLinkRequest,
-    DiscordAccountLinkResponse,
-    DiscordUserUpsertRequest,
-    HealthCheckResponse,
-)
+from skillforge_client.api.system import system_liveness_check
+from skillforge_client.models import HealthCheckResponse
 
 from skillbot.core.config import SkillForgeSettings
 
 from .auth import ClientCredentialsAuth
-from .helpers import require_response, skillforge_boundary
-from .models import DiscordUser, MemberRole
+from .helpers import skillforge_boundary
 
 
 @skillforge_boundary
@@ -58,49 +45,4 @@ class SkillForgeClient:
             await self._public_client.get_async_httpx_client().aclose()
 
     async def liveness_check(self) -> HealthCheckResponse | None:
-        return await liveness_check_health_live_get.asyncio(client=self._public_client)
-
-    async def upsert_discord_user(
-        self,
-        discord_id: int,
-        *,
-        nick_name: str,
-        role: MemberRole,
-        active: bool = True,
-    ) -> DiscordUser:
-        """`PUT` on route `/api/v1/bot/users/{discord_id}`"""
-        request = DiscordUserUpsertRequest(
-            nick_name=nick_name,
-            role=role,
-            active=active,
-        )
-
-        response = await upsert_discord_user_endpoint_api_v1_bot_users_discord_id_put.asyncio_detailed(
-            discord_id=discord_id,
-            client=self._client,
-            body=request,
-        )
-
-        return require_response(
-            response,
-            status=HTTPStatus.OK,
-            model=DiscordUser,
-        )
-
-    async def link_discord_user_with_party(
-        self, discord_id: int, *, party_id: UUID, is_primary: bool, active: bool = True
-    ) -> DiscordAccountLinkResponse:
-        """`PUT` on route `/api/v1/bot/users/{discord_id}/account`"""
-        request = DiscordAccountLinkRequest(party_id=party_id, is_primary=is_primary, active=active)
-
-        response = await link_discord_account_endpoint_api_v1_bot_users_discord_id_account_put.asyncio_detailed(
-            discord_id=discord_id,
-            client=self._client,
-            body=request,
-        )
-
-        return require_response(
-            response,
-            status=HTTPStatus.OK,
-            model=DiscordAccountLinkResponse,
-        )
+        return await system_liveness_check.asyncio(client=self._public_client)
